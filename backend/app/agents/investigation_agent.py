@@ -124,8 +124,10 @@ async def investigate(client_id: int) -> InvestigationFinding:
     user_prompt = _build_user_prompt(client_id, profile, transactions, sanctions, news)
 
     nvidia_client = AsyncOpenAI(
-        base_url="https://integrate.api.nvidia.com/v1",
-        api_key=settings.nvidia_api_key,
+        base_url=settings.llm_base_url,
+        # Local OpenAI-compatible servers (Ollama) ignore auth, but the client
+        # requires a non-empty value.
+        api_key=settings.nvidia_api_key or "not-needed",
     )
 
     logger.info("Calling NVIDIA GLM-5.2 for investigation (client_id=%d)", client_id)

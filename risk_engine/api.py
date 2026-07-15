@@ -87,6 +87,11 @@ def create_app() -> Any:
     def governance_audit() -> list[dict[str, Any]]:
         return governance.audit()
 
+    @app.get("/governance/audit/verify")
+    def governance_audit_verify() -> dict[str, Any]:
+        """Recompute the hash chain; names the first broken entry, if any."""
+        return governance.verify_chain()
+
     if FRONTEND_DIR.exists():
         app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="frontend-assets")
 

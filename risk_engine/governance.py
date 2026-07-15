@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from hashlib import sha256
+from pathlib import Path
 from typing import Any
 
 from risk_engine import RiskEngine
@@ -36,6 +37,7 @@ class GovernanceStore:
     _case_cache: list[dict[str, Any]] = field(default_factory=list)
 
     def __post_init__(self) -> None:
+        self._load_persisted()
         if not self.audit_log:
             self.record_audit("SYSTEM", "DATASET_LOADED", "LOCAL_DATASET", "Local KYC and transaction datasets loaded into risk intelligence engine")
 
@@ -159,7 +161,91 @@ class GovernanceStore:
         digest = sha256(f"{event_id}|{actor}|{action}|{resource}|{reason}|{timestamp}|{previous_hash}".encode("utf-8")).hexdigest()
         entry = AuditEntry(event_id, actor, action, resource, reason, timestamp, previous_hash, digest)
         self.audit_log.append(entry)
+        self._persist(entry)
         return entry
+
+    def verify_chain(self) -> dict[str, Any]:
+        """Recompute every digest and link; report the first break.
+
+        The chain is only tamper-EVIDENT if something actually re-checks it —
+        an unverified hash column is indistinguishable from a plain log.
+        """
+        previous = "GENESIS"
+        for index, entry in enumerate(self.audit_log):
+            expected = sha256(
+                f"{entry.event_id}|{entry.actor}|{entry.action}|{entry.resource}|"
+                f"{entry.reason}|{entry.timestamp}|{entry.previous_hash}".encode("utf-8")
+            ).hexdigest()
+            if entry.previous_hash != previous:
+                return {"valid": False, "events_checked": index + 1,
+                        "broken_at": entry.event_id, "reason": "previous_hash mismatch"}
+            if entry.hash != expected:
+                return {"valid": False, "events_checked": index + 1,
+                        "broken_at": entry.event_id, "reason": "content altered"}
+            previous = entry.hash
+        return {"valid": True, "events_checked": len(self.audit_log), "broken_at": None,
+                "reason": None}
+
+    # -- persistence (the architecture's "Audit Trail (DB)" box) -----------
+
+    def _audit_db_path(self) -> Path | None:
+        import os
+
+        raw = os.environ.get("GOVERNANCE_AUDIT_DB")
+        if raw == ":none:":  # explicit opt-out (tests that need isolation)
+            return None
+        if raw:
+            return Path(raw)
+        return Path(__file__).resolve().parents[1] / "var" / "audit" / "governance_audit.db"
+
+    def _persist(self, entry: AuditEntry) -> None:
+        """Append the entry to the SQLite audit database.
+
+        Persistence failures are swallowed: losing durability degrades the
+        audit trail, but raising here would turn a disk problem into a
+        governance-API outage.
+        """
+        path = self._audit_db_path()
+        if path is None:
+            return
+        import sqlite3
+
+        try:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with sqlite3.connect(path) as conn:
+                conn.execute(
+                    "CREATE TABLE IF NOT EXISTS audit ("
+                    "event_id TEXT PRIMARY KEY, actor TEXT, action TEXT, resource TEXT,"
+                    "reason TEXT, timestamp TEXT, previous_hash TEXT, hash TEXT)"
+                )
+                conn.execute(
+                    "INSERT OR IGNORE INTO audit VALUES (?,?,?,?,?,?,?,?)",
+                    (entry.event_id, entry.actor, entry.action, entry.resource,
+                     entry.reason, entry.timestamp, entry.previous_hash, entry.hash),
+                )
+        except Exception:  # noqa: BLE001 - see docstring
+            pass
+
+    def _load_persisted(self) -> None:
+        """Reload the chain from the database so it continues across restarts.
+
+        Without this, every restart re-anchors at GENESIS and the 'append-only,
+        tamper-evident' story only holds for the lifetime of one process.
+        """
+        path = self._audit_db_path()
+        if path is None or not path.exists():
+            return
+        import sqlite3
+
+        try:
+            with sqlite3.connect(path) as conn:
+                rows = conn.execute(
+                    "SELECT event_id, actor, action, resource, reason, timestamp,"
+                    " previous_hash, hash FROM audit ORDER BY event_id"
+                ).fetchall()
+            self.audit_log.extend(AuditEntry(*row) for row in rows)
+        except Exception:  # noqa: BLE001 - unreadable history must not block startup
+            pass
 
     @staticmethod
     def _case_row(client: dict[str, Any], assessment: dict[str, Any]) -> dict[str, Any]:

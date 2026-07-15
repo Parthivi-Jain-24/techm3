@@ -95,8 +95,10 @@ async def _llm_call(
     schema_name: str,
 ) -> dict:
     nvidia_client = AsyncOpenAI(
-        base_url="https://integrate.api.nvidia.com/v1",
-        api_key=settings.nvidia_api_key,
+        base_url=settings.llm_base_url,
+        # Local OpenAI-compatible servers (Ollama) ignore auth, but the client
+        # requires a non-empty value.
+        api_key=settings.nvidia_api_key or "not-needed",
     )
 
     response = await nvidia_client.chat.completions.create(
