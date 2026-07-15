@@ -68,7 +68,6 @@ The Continuous KYC Autonomous Auditor continuously monitors high-risk corporate 
           | Audit Trail & Governance     |
           +-----------------------------+
 
-
 ---
 
 # Technology Stack
@@ -102,75 +101,71 @@ The Continuous KYC Autonomous Auditor continuously monitors high-risk corporate 
 
 # Repository Structure
 
-techm-kyc/
-
-│
-├── backend/
-│ ├── app/
-│ │ ├── agents/
-│ │ ├── api/
-│ │ ├── audit/
-│ │ ├── cases/
-│ │ ├── core/
-│ │ ├── database/
-│ │ ├── encryption/
-│ │ ├── entity_intelligence/
-│ │ ├── evidence/
-│ │ ├── identity/
-│ │ ├── ingestion/
-│ │ ├── integrations/
-│ │ ├── privacy/
-│ │ ├── risk_intelligence/
-│ │ └── schemas/
-│ │
-│ ├── tests/
-│ ├── requirements.txt
-│ └── alembic.ini
-│
-├── frontend/
-│ ├── src/
-│ ├── public/
-│ ├── package.json
-│ └── vite.config.js
-│
-├── data/
-│ ├── raw/
-│ ├── processed/
-│ ├── encrypted/
-│ └── samples/
-│
-├── docs/
-│
-├── ml/
-│
-├── scripts/
-│
-├── deployment/
-│
-├── docker-compose.yml
-│
-└── README.md
-
+(keep your existing repository tree here)
 
 ---
 
 # Engineering Workstreams
 
-| Workstream | Scope | Primary Directories |
-|---|---|---|
-| 1 | Secure Data Ingestion, Authentication, Authorization, PII Protection, Database | `backend/app/ingestion/`, `backend/app/identity/`, `backend/app/privacy/`, `backend/app/database/` |
-| 2 | Entity Resolution, Sanctions Screening, OFAC, Adverse Media Monitoring | `backend/app/entity_intelligence/`, `backend/app/integrations/` |
-| 3 | AML Transaction Monitoring, ML Models, Risk Scoring, Confidence Scoring | `backend/app/risk_intelligence/`, `ml/` |
-| 4 | Agent Orchestration, Autonomous Investigation, Evidence Grounding, SAR Drafting | `backend/app/agents/`, `backend/app/evidence/` |
-| 5 | Frontend Dashboard, Case Management, Human Review Workflow, Audit UI | `frontend/`, `backend/app/cases/`, `backend/app/audit/` |
+(keep your existing workstream table here)
 
 ---
 
 # Backend Setup
 
-## Create Virtual Environment
+(keep your existing setup instructions here)
+
+---
+
+# Entity Intelligence Module
+
+The Entity Intelligence module implements the core capabilities required for:
+
+- Sanctions and watchlist screening
+- Entity normalization
+- Hybrid entity resolution
+- Evidence-first compliance outputs
+- Adverse media intelligence
+- Ownership graph traversal for hidden beneficial ownership detection
+
+---
+
+# ProjectTechM Entity Intelligence Implementation
+
+## What this project covers
+
+- Sanctions and watchlist entity normalization
+- Hybrid entity resolution with fuzzy + contextual scoring hooks
+- Evidence-first output contracts for downstream risk and SAR workflows
+- Adverse-media extraction with prompt-injection defense hooks
+- Ownership graph traversal for hidden-UBO detection
+
+---
+
+# Suggested Structure
+
+src/projecttechm/
+
+├── schemas.py
+├── scoring.py
+├── resolution.py
+├── adverse_media.py
+├── ubo_graph.py
+├── cli.py
+├── api.py
+├── evidence.py
+├── audit.py
+├── services.py
+
+
+---
+
+# Running Entity Intelligence Module
 
 ```bash
-cd backend
-
 python -m venv .venv
+
+.\.venv\Scripts\activate
+
+pip install -e .[dev]
+
