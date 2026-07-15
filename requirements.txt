@@ -1,0 +1,42 @@
+# SHARED FILE — coordinate changes with all workstreams before modifying.
+#
+# Placeholder dependency list. Pin exact versions once implementation begins.
+
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+sqlalchemy
+alembic
+psycopg2-binary
+# Auth (Phase 4). NOTE: switched from python-jose/passlib to PyJWT + argon2-cffi.
+# Reason: passlib imports the stdlib `crypt` module, REMOVED in Python 3.13+
+# (this project runs on 3.14), so passlib is unusable here. PyJWT is actively
+# maintained with a strict algorithm allow-list; argon2-cffi provides Argon2id.
+PyJWT
+argon2-cffi
+python-multipart
+
+# --- AI / ML (Workstream 3) ---
+scikit-learn
+pandas
+numpy
+sentence-transformers
+
+# --- KYC file ingestion (Phase 2 XLSX channel) — read-only spreadsheet parser.
+# openpyxl never evaluates formulas; workbooks are opened read_only+data_only.
+# (CSV uses the stdlib `csv` module and needs no dependency.)
+openpyxl
+
+# --- HTTP client (Phase 5 outbound API ingestion; also used by TestClient) ---
+httpx
+
+# --- Encryption at rest (Phase 6) — maintained AEAD primitive (AES-256-GCM) ---
+cryptography
+
+# --- Secrets vault (Phase 8) — maintained official HashiCorp Vault client ---
+hvac
+
+# --- Testing ---
+pytest
+pytest-cov
