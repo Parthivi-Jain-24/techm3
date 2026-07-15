@@ -1,0 +1,46 @@
+# Python
+.venv/
+venv/
+.pytest_cache/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+
+# Secrets. Credentials belong in the shell environment, never in the repo.
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# Datasets — ~1.6 GB, and two files exceed GitHub's 100 MB hard limit
+# (SAML-D.csv 951 MB, opensanctions_targets.csv 466 MB), so a push containing
+# them is rejected outright. All of it is reproducible:
+#     python scripts/download_data.py
+# The small demo fixtures are re-included below: the playbook §9 cases and the
+# hidden-UBO showcase live only in those files, so the demo needs them.
+data/*
+!data/sanctions/
+data/sanctions/*
+!data/sanctions/sample_ofac_sdn.csv
+!data/sanctions/sample_ofac_alt.csv
+!data/sanctions/sample_opensanctions.csv
+!data/articles/
+!data/ubo/
+
+# Local model weights and caches
+*.gguf
+*.safetensors
+
+# Unexplained binary that shipped in data/ — not referenced by any code.
+*.dll
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
