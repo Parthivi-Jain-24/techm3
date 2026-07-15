@@ -1,6 +1,56 @@
+# SHARED FILE — coordinate changes with all workstreams before modifying.
+#
+# Dependency list for the Continuous KYC Autonomous Auditor.
+
+# ----------------------------
+# Core Backend
+# ----------------------------
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 pydantic==2.9.2
 pydantic-settings==2.5.2
 httpx==0.27.2
 python-dotenv==1.0.1
+
+# ----------------------------
+# Database
+# ----------------------------
+sqlalchemy
+alembic
+psycopg2-binary
+
+# ----------------------------
+# Authentication / Authorization
+# ----------------------------
+PyJWT
+argon2-cffi
+python-multipart
+
+# ----------------------------
+# AI / ML
+# ----------------------------
+scikit-learn
+pandas
+numpy
+sentence-transformers
+
+# ----------------------------
+# File Ingestion
+# ----------------------------
+openpyxl
+
+# ----------------------------
+# Encryption
+# ----------------------------
+cryptography
+
+# ----------------------------
+# Secrets Management
+# ----------------------------
+hvac
+
+# ----------------------------
+# Testing
+# ----------------------------
+pytest
+pytest-cov
