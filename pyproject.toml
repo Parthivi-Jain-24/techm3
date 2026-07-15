@@ -1,0 +1,15 @@
+[project]
+name = "continuous-kyc-risk-engine"
+version = "0.1.0"
+description = "Explainable risk scoring engine for a Continuous KYC Autonomous Auditor."
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.111", "uvicorn>=0.30"]
+test = ["pytest>=8.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
