@@ -4,7 +4,8 @@ from pathlib import Path
 
 class Settings(BaseSettings):
     gemini_api_key: str = ""
-    model_name: str = "gemini-2.5-flash"
+    nvidia_api_key: str = ""
+    model_name: str = "gemini-3.1-flash-lite"
     data_folder: Path = Path(__file__).resolve().parent.parent.parent / "data"
 
     model_config = {

@@ -1,28 +1,28 @@
 """Stage 2 — LLM-powered investigation agent.
 
 Pulls client profile, transactions, and sanctions matches via data loaders,
-builds a prompt with that context, calls Google Gemini 2.5 Flash (free tier
-via Google AI Studio), and returns a validated ``InvestigationFinding``.
+builds a prompt with that context, calls NVIDIA GLM-5.2 via OpenAI-compatible
+API, and returns a validated ``InvestigationFinding``.
 """
 
 from __future__ import annotations
 
 import json
 import logging
+import re
 
-import httpx
+from openai import AsyncOpenAI
 
 from app.config import settings
 from app.data_loaders import (
     get_client_profile,
     get_client_transactions,
     get_sanctions_matches,
+    get_adverse_media,
 )
 from app.schemas.findings import InvestigationFinding
 
 logger = logging.getLogger(__name__)
-
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 SYSTEM_PROMPT = """\
 You are a Continuous KYC Investigation Agent for a financial compliance system.
@@ -42,11 +42,21 @@ _SCHEMA_HINT = json.dumps(InvestigationFinding.model_json_schema(), indent=2)
 _MAX_TRANSACTIONS_IN_PROMPT = 50
 
 
+def _extract_json(text: str) -> str:
+    """Strip markdown code fences if the model wraps output in ```json ... ```."""
+    text = text.strip()
+    match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
+    if match:
+        return match.group(1).strip()
+    return text
+
+
 def _build_user_prompt(
     client_id: int,
     profile: dict,
     transactions: list[dict],
     sanctions: list[dict],
+    news: list[dict],
 ) -> str:
     parts: list[str] = []
 
@@ -69,6 +79,13 @@ def _build_user_prompt(
     else:
         parts.append("No matches found.")
 
+    parts.append(f"\n## Live Adverse Media News ({len(news)} articles found)")
+    if news:
+        for art in news:
+            parts.append(json.dumps(art, default=str))
+    else:
+        parts.append("No adverse news found.")
+
     parts.append(f"\n## Required Output Schema")
     parts.append(_SCHEMA_HINT)
 
@@ -79,21 +96,23 @@ def _build_user_prompt(
     return "\n".join(parts)
 
 
-def _gather_context(client_id: int) -> tuple[dict | None, list[dict], list[dict]]:
+def _gather_context(client_id: int) -> tuple[dict | None, list[dict], list[dict], list[dict]]:
     profile = get_client_profile(client_id)
     transactions = get_client_transactions(client_id)
     sanctions: list[dict] = []
+    news: list[dict] = []
     if profile:
         name = profile.get("client_name", "")
         if name:
             sanctions = get_sanctions_matches(name)
-    return profile, transactions, sanctions
+            news = get_adverse_media(name)
+    return profile, transactions, sanctions, news
 
 
 async def investigate(client_id: int) -> InvestigationFinding:
     """Run a full investigation for *client_id* and return a validated finding."""
 
-    profile, transactions, sanctions = _gather_context(client_id)
+    profile, transactions, sanctions, news = _gather_context(client_id)
 
     if profile is None:
         return InvestigationFinding(
@@ -102,44 +121,32 @@ async def investigate(client_id: int) -> InvestigationFinding:
             confidence="low",
         )
 
-    user_prompt = _build_user_prompt(client_id, profile, transactions, sanctions)
+    user_prompt = _build_user_prompt(client_id, profile, transactions, sanctions, news)
 
-    url = GEMINI_API_URL.format(model=settings.model_name)
+    nvidia_client = AsyncOpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=settings.nvidia_api_key,
+    )
 
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": SYSTEM_PROMPT + "\n\n" + user_prompt}],
-            }
+    logger.info("Calling NVIDIA GLM-5.2 for investigation (client_id=%d)", client_id)
+
+    response = await nvidia_client.chat.completions.create(
+        model=settings.model_name,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": user_prompt},
         ],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "temperature": 0.2,
-        },
-    }
+        temperature=0.2,
+        top_p=1,
+        max_tokens=4096,
+        seed=42,
+    )
 
-    params = {"key": settings.gemini_api_key}
+    content = response.choices[0].message.content
+    logger.debug("Raw LLM response: %s", content[:500])
 
-    import asyncio as _asyncio
-
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        for attempt in range(4):
-            resp = await client.post(url, json=payload, params=params)
-            if resp.status_code in (429, 503) and attempt < 3:
-                wait = (attempt + 1) * 10
-                logger.warning("Rate limited (429), retrying in %ds (attempt %d/3)", wait, attempt + 1)
-                await _asyncio.sleep(wait)
-                continue
-            if resp.status_code != 200:
-                logger.error("Gemini API error %s: %s", resp.status_code, resp.text)
-            resp.raise_for_status()
-            break
-
-    body = resp.json()
-    content = body["candidates"][0]["content"]["parts"][0]["text"]
-
-    raw = json.loads(content)
+    raw = json.loads(_extract_json(content))
     raw["client_id"] = client_id
 
     return InvestigationFinding.model_validate(raw)
+
