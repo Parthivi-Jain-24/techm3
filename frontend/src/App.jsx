@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
 import {
@@ -125,10 +125,10 @@ function guardrailStats(gr) {
 
 function pickClientScore(client) {
   let score = 24;
-  if (client?.sanctions_flag) score += 30;
-  if (client?.pep_flag) score += 18;
-  if (client?.fatf_country_flag) score += 14;
-  if (String(client?.sector_risk).toLowerCase() === "high") score += 12;
+  if (isTrueFlag(client?.sanctions_flag)) score += 30;
+  if (isTrueFlag(client?.pep_flag)) score += 18;
+  if (isTrueFlag(client?.fatf_country_flag)) score += 14;
+  if (isHighSector(client)) score += 18;
   return Math.min(score, 96);
 }
 
@@ -136,8 +136,8 @@ function Timeline({ client }) {
   const score = pickClientScore(client);
   const items = [
     ["Initial KYC", Math.max(18, score - 42), "Profile ingested and normalized"],
-    ["Screening", Math.max(24, score - 24), client?.sanctions_flag ? "Sanctions indicator found" : "No confirmed sanctions match"],
-    ["Risk update", score, client?.fatf_country_flag ? "Jurisdiction risk added" : "Continuous score refreshed"],
+    ["Screening", Math.max(24, score - 24), isTrueFlag(client?.sanctions_flag) ? "Sanctions indicator found" : isHighSector(client) ? "High sector risk requires screening" : "No confirmed sanctions match"],
+    ["Risk update", score, isTrueFlag(client?.fatf_country_flag) ? "Jurisdiction risk added" : isHighSector(client) ? "Sector-risk score refreshed" : "Continuous score refreshed"],
   ];
   return (
     <ul className="timeline clickable-timeline">
@@ -151,23 +151,60 @@ function Timeline({ client }) {
   );
 }
 
-function MatchTable({ matches }) {
-  if (!matches?.length) return <p className="muted">No match above threshold.</p>;
+function isTrueFlag(value) {
+  return value === true || value === 1 || value === "1" || String(value).toLowerCase() === "true";
+}
+
+function isHighSector(client) {
+  return ["high", "critical"].includes(String(client?.sector_risk || "").toLowerCase());
+}
+
+function profileSignalMatches(client) {
+  if (!client) return [];
+  const rows = [];
+  if (isTrueFlag(client.sanctions_flag)) rows.push({ matched_against: client.client_name, match_score: 88, classification: "profile sanctions flag", component_scores: { profile: 1, evidence: 0.88 }, evidence_id: `KYC-${client.client_id}-sanctions_flag` });
+  if (isTrueFlag(client.pep_flag)) rows.push({ matched_against: client.client_name, match_score: 82, classification: "PEP profile flag", component_scores: { profile: 1, evidence: 0.82 }, evidence_id: `KYC-${client.client_id}-pep_flag` });
+  if (isHighSector(client)) rows.push({ matched_against: `${client.sector || "Customer sector"}`, match_score: 72, classification: "high sector risk", component_scores: { sector: 1, evidence: 0.72 }, evidence_id: `KYC-${client.client_id}-sector_risk` });
+  return rows;
+}
+
+function MatchTable({ matches, selected, result }) {
+  const rows = matches?.length ? matches : profileSignalMatches(selected);
+  if (!rows.length) {
+    return <div className="callout callout-info">No sanctions-list match crossed the configured threshold. The customer remains under baseline monitoring unless profile, transaction, media, or UBO evidence adds risk.</div>;
+  }
   return (
-    <table className="evidence-table">
-      <thead><tr><th>Matched entity</th><th>Score</th><th>Classification</th><th>Breakdown</th><th>Evidence</th></tr></thead>
-      <tbody>
-        {matches.map((m, i) => (
-          <tr key={m.evidence_id || i}>
-            <td>{m.matched_against || m.name || "-"}</td>
-            <td><strong>{typeof m.match_score === "number" ? m.match_score.toFixed(2) : m.match_score ?? "-"}</strong></td>
-            <td>{m.classification || m.decision || "review"}</td>
-            <td><div className="chip-row">{Object.entries(m.component_scores || {}).map(([k, v]) => <span className="chip" key={k}>{k} {typeof v === "number" ? v.toFixed(2) : v}</span>)}</div></td>
-            <td className="mono-sm">{m.evidence_id || "-"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <>
+      {!matches?.length && <div className="callout callout-warning">No direct list match crossed the sanctions threshold, so the table below shows profile-based risk signals from the loaded KYC data.</div>}
+      {result?.decision && <div className="callout callout-info">Screening decision: {result.decision}. Confidence: {result.match_confidence ?? result.confidence ?? "not supplied"}.</div>}
+      <table className="evidence-table">
+        <thead><tr><th>Matched / flagged item</th><th>Score</th><th>Classification</th><th>Breakdown</th><th>Evidence</th></tr></thead>
+        <tbody>
+          {rows.map((m, i) => (
+            <tr key={m.evidence_id || i}>
+              <td>{m.matched_against || m.matched_entity_name || m.name || "-"}</td>
+              <td><strong>{typeof m.match_score === "number" ? m.match_score.toFixed(2) : m.match_score ?? m.match_confidence ?? "-"}</strong></td>
+              <td>{m.classification || m.decision || "review"}</td>
+              <td><div className="chip-row">{Object.entries(m.component_scores || {}).map(([k, v]) => <span className="chip" key={k}>{k} {typeof v === "number" ? v.toFixed(2) : v}</span>)}</div></td>
+              <td className="mono-sm">{m.evidence_id || m.result_id || "profile-signal"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function AuditSummary({ audit }) {
+  if (!audit) return null;
+  if (audit.status === "error") return <div className="error-box">Audit verification failed: {audit.detail}</div>;
+  return (
+    <div className={audit.valid ? "callout callout-success" : "callout callout-danger"}>
+      <strong>{audit.valid ? "Hash chain verified" : "Hash chain broken"}</strong>
+      <div>{audit.events_checked ?? 0} event(s) checked at {audit.checked_at || "this session"}.</div>
+      {audit.broken_at && <div>Broken at: {audit.broken_at}. Reason: {audit.reason}</div>}
+      {!audit.broken_at && <div>Latest check confirms the persisted governance audit log is still linked and tamper-evident.</div>}
+    </div>
   );
 }
 
@@ -220,7 +257,7 @@ function Workbench({ session, onLogout }) {
     setBusy((b) => ({ ...b, entity: true }));
     setError(null);
     try {
-      const result = await screen({ name: selected.client_name, nationality: selected.country });
+      const result = await screen({ entity_id: `CUST-${selected.client_id}`, name: selected.client_name, nationality: selected.country, company: selected.client_name, context: `${selected.sector || "KYC"} customer from ${selected.country || "unknown jurisdiction"}` });
       setEntityResult(result);
     } catch (err) {
       setError(err.message);
@@ -230,11 +267,22 @@ function Workbench({ session, onLogout }) {
   }
 
   async function runArticleCheck() {
-    const first = articles[0];
-    const articleName = typeof first === "string" ? first : first?.name;
-    if (!articleName || !selected) return;
+    if (!selected) return;
     setBusy((b) => ({ ...b, article: true }));
+    setError(null);
     try {
+      let available = articles;
+      if (!available.length) {
+        const refreshed = await listArticles();
+        available = refreshed.articles || refreshed || [];
+        setArticles(available);
+      }
+      const preferred = available.find((item) => String(typeof item === "string" ? item : item?.name).includes("adverse_hit")) || available[0];
+      const articleName = typeof preferred === "string" ? preferred : preferred?.name;
+      if (!articleName) {
+        setArticleResult({ status: "not_configured", message: "No local adverse-media article is loaded yet. Add article files under data/articles to enable evidence analysis." });
+        return;
+      }
       setArticleResult(await analyzeArticle(`CUST-${selected.client_id}`, articleName));
     } catch (err) {
       setError(err.message);
@@ -244,11 +292,22 @@ function Workbench({ session, onLogout }) {
   }
 
   async function runUboTrace() {
-    const structure = uboStructures[0];
-    if (!structure) return;
+    if (!selected) return;
     setBusy((b) => ({ ...b, ubo: true }));
+    setError(null);
     try {
-      setUboResult(await traceUbo({ structure: structure.name, root_entity_id: structure.roots?.[0] || "" }));
+      let available = uboStructures;
+      if (!available.length) {
+        const refreshed = await listUboStructures();
+        available = refreshed.structures || refreshed || [];
+        setUboStructures(available);
+      }
+      const preferred = available.find((item) => (item.roots || []).includes(`CUST-${selected.client_id}`)) || available[0];
+      if (!preferred) {
+        setUboResult({ status: "not_configured", root_entity_id: `CUST-${selected.client_id}`, findings: [], nodes_traversed: 0, message: "No UBO structure file is currently loaded. Add or select a JSON structure in data/ubo to trace ownership." });
+        return;
+      }
+      setUboResult(await traceUbo({ structure: preferred.name || preferred, root_entity_id: preferred.roots?.[0] || `CUST-${selected.client_id}` }));
     } catch (err) {
       setError(err.message);
     } finally {
@@ -281,7 +340,11 @@ function Workbench({ session, onLogout }) {
       const result = action === "Sign off SAR"
         ? await sarSignoff(selectedId, { actor, reason })
         : await submitReview(selectedId, { actor, action, reason });
-      setReviewMessage({ kind: "ok", text: `Recorded ${result.review_id || result.signoff_id || "decision"}` });
+      const id = result.review_id || result.signoff_id || "decision";
+      const label = result.action || result.status || action;
+      setReviewMessage({ kind: "ok", text: `${label} recorded for customer ${selectedId}. Reference ${id}. The audit chain now has a new human-review event.` });
+      caseDetail(selectedId, "compliance").then(setCaseInfo).catch(() => {});
+      governanceAuditVerify().then((audit) => setAuditCheck({ ...audit, checked_at: new Date().toLocaleString() })).catch(() => {});
       setReason("");
     } catch (err) {
       setReviewMessage({ kind: "error", text: err.message });
@@ -294,7 +357,7 @@ function Workbench({ session, onLogout }) {
     setBusy((b) => ({ ...b, audit: true }));
     try {
       const result = await governanceAuditVerify().catch(() => auditVerify());
-      setAuditCheck(result);
+      setAuditCheck({ ...result, checked_at: new Date().toLocaleString() });
     } catch (err) {
       setAuditCheck({ status: "error", detail: err.message });
     } finally {
@@ -366,7 +429,7 @@ function Workbench({ session, onLogout }) {
                     <div className="kv"><span className="kv-key">Name</span><span className="kv-val">{selected.client_name}</span></div>
                     <div className="kv"><span className="kv-key">Country</span><span className="kv-val">{selected.country}</span></div>
                     <div className="kv"><span className="kv-key">Sector</span><span className="kv-val">{selected.sector}</span></div>
-                    <div className="kv"><span className="kv-key">Risk drivers</span><span className="kv-val">{[selected.sanctions_flag && "Sanctions", selected.pep_flag && "PEP", selected.fatf_country_flag && "FATF", selected.sector_risk && `${selected.sector_risk} sector`].filter(Boolean).join(", ") || "Baseline monitoring"}</span></div>
+                    <div className="kv"><span className="kv-key">Risk drivers</span><span className="kv-val">{[isTrueFlag(selected.sanctions_flag) && "Sanctions", isTrueFlag(selected.pep_flag) && "PEP", isTrueFlag(selected.fatf_country_flag) && "FATF", selected.sector_risk && `${selected.sector_risk} sector`].filter(Boolean).join(", ") || "Baseline monitoring"}</span></div>
                   </div>
                 </div>
               )}
@@ -382,12 +445,12 @@ function Workbench({ session, onLogout }) {
             <div className="card-body">
               <div className="controls">
                 <button onClick={runEntityIntelligence} disabled={!selected || busy.entity}>{busy.entity ? "Screening..." : "Screen sanctions"}</button>
-                <button className="secondary" onClick={runArticleCheck} disabled={!articles.length || busy.article}>{busy.article ? "Checking..." : "Check adverse media"}</button>
-                <button className="secondary" onClick={runUboTrace} disabled={!uboStructures.length || busy.ubo}>{busy.ubo ? "Tracing..." : "Trace UBO graph"}</button>
+                <button className="secondary" onClick={runArticleCheck} disabled={!selected || busy.article}>{busy.article ? "Checking..." : "Check adverse media"}</button>
+                <button className="secondary" onClick={runUboTrace} disabled={!selected || busy.ubo}>{busy.ubo ? "Tracing..." : "Trace UBO graph"}</button>
               </div>
-              <MatchTable matches={entityResult?.matches || (Array.isArray(entityResult) ? entityResult : [])} />
-              {articleResult && <div className={articleResult.injection_attempt_detected ? "callout callout-danger" : "callout callout-success"}>{articleResult.injection_attempt_detected ? `Prompt injection detected: ${articleResult.injection_details}` : "No prompt injection detected in selected article."}</div>}
-              {uboResult && <div className="ubo-map"><div className="section-label">Ownership graph</div><div className="chain">{(uboResult.findings?.[0]?.ownership_path || [uboResult.root_entity_id, "screened owners"]).map((hop, i, arr) => <span className="chain-hop" key={`${hop}-${i}`}>{hop}{i < arr.length - 1 && <span className="chain-arrow">→</span>}</span>)}</div><p className="muted">{uboResult.findings?.length || 0} sanctioned owner finding(s), {uboResult.nodes_traversed || 0} node(s) traversed.</p></div>}
+              <MatchTable selected={selected} result={entityResult} matches={entityResult?.matches || (Array.isArray(entityResult) ? entityResult : [])} />
+              {articleResult && <div className={articleResult.injection_attempt_detected ? "callout callout-danger" : articleResult.status === "not_configured" ? "callout callout-warning" : "callout callout-success"}>{articleResult.injection_attempt_detected ? `Prompt injection detected: ${articleResult.injection_details}` : articleResult.message || articleResult.summary || "Adverse media checked. No prompt injection detected in the selected article."}</div>}
+              {uboResult && <div className="ubo-map"><div className="section-label">Ownership graph</div>{uboResult.message && <div className="callout callout-warning">{uboResult.message}</div>}<div className="chain">{(uboResult.findings?.[0]?.ownership_path || [uboResult.root_entity_id, "screened owners"]).map((hop, i, arr) => <span className="chain-hop" key={`${hop}-${i}`}>{hop}{i < arr.length - 1 && <span className="chain-arrow">→</span>}</span>)}</div><p className="muted">{uboResult.findings?.length || 0} sanctioned owner finding(s), {uboResult.nodes_traversed || 0} node(s) traversed.</p></div>}
             </div>
           </div>
         </div>
@@ -397,10 +460,10 @@ function Workbench({ session, onLogout }) {
             <div className="card-header"><h3>Why flagged?</h3></div>
             <div className="card-body">
               <ul className="risk-list">
-                <li><span className={severityClass(selected?.sanctions_flag ? "critical" : "low")}>sanctions</span>{selected?.sanctions_flag ? "+30 confirmed indicator" : "No direct flag"}</li>
-                <li><span className={severityClass(selected?.pep_flag ? "high" : "low")}>PEP</span>{selected?.pep_flag ? "+18 politically exposed person" : "No PEP flag"}</li>
-                <li><span className={severityClass(selected?.fatf_country_flag ? "high" : "low")}>jurisdiction</span>{selected?.fatf_country_flag ? "+14 FATF country flag" : "No FATF flag"}</li>
-                <li><span className="severity severity-medium">sector</span>{selected?.sector_risk || "Baseline"} sector risk</li>
+                <li><span className={severityClass(isTrueFlag(selected?.sanctions_flag) ? "critical" : "low")}>sanctions</span>{isTrueFlag(selected?.sanctions_flag) ? "+30 confirmed indicator" : "No direct flag"}</li>
+                <li><span className={severityClass(isTrueFlag(selected?.pep_flag) ? "high" : "low")}>PEP</span>{isTrueFlag(selected?.pep_flag) ? "+18 politically exposed person" : "No PEP flag"}</li>
+                <li><span className={severityClass(isTrueFlag(selected?.fatf_country_flag) ? "high" : "low")}>jurisdiction</span>{isTrueFlag(selected?.fatf_country_flag) ? "+14 FATF country flag" : "No FATF flag"}</li>
+                <li><span className={severityClass(isHighSector(selected) ? "high" : "medium")}>sector</span>{isHighSector(selected) ? `+18 ${selected?.sector_risk} sector risk` : `${selected?.sector_risk || "Baseline"} sector risk`}</li>
               </ul>
             </div>
           </div>
@@ -409,7 +472,7 @@ function Workbench({ session, onLogout }) {
             <div className="card-header"><h3>Audit integrity</h3></div>
             <div className="card-body">
               <button onClick={verifyAudit} disabled={busy.audit}>{busy.audit ? "Verifying..." : "Verify hash chain"}</button>
-              {auditCheck && <pre className="json-dump">{JSON.stringify(auditCheck, null, 2)}</pre>}
+              <AuditSummary audit={auditCheck} />
             </div>
           </div>
         </aside>
@@ -440,7 +503,7 @@ function Workbench({ session, onLogout }) {
             <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Explain the evidence used for this decision." />
           </label>
           <div className="controls">
-            {["Approve escalation", "Request more investigation", "Mark false positive", "Reject AI recommendation", "Sign off SAR"].map((action) => <button key={action} className={action === "Sign off SAR" ? "secondary" : ""} onClick={() => review(action)} disabled={busy.review}>{action}</button>)}
+            {["Approve escalation", "Request more investigation", "Mark false positive"].map((action) => <button key={action} onClick={() => review(action)} disabled={busy.review}>{action}</button>)}<button className="secondary" onClick={() => review("Sign off SAR")} disabled={busy.review || !pipeline?.sar}>Sign off SAR draft</button>
           </div>
           {reviewMessage && <div className={reviewMessage.kind === "ok" ? "callout callout-success" : "error-box"}>{reviewMessage.text}</div>}
         </div>
