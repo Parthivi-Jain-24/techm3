@@ -1,0 +1,138 @@
+{
+  "policy": 72,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.26053053
+        },
+        {
+          "category": 9,
+          "log_prob": -0.063214414
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -4.3202e-07
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.147242e-06
+        }
+      ]
+    },
+    {
+      "segment": 3,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.00014025059
+        }
+      ]
+    },
+    {
+      "segment": 4,
+      "categories": [
+        {
+          "category": 5,
+          "log_prob": -3.7742768e-05
+        },
+        {
+          "category": 7,
+          "log_prob": -0.0024768433
+        }
+      ]
+    },
+    {
+      "segment": 5,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -2.8206474e-05
+        },
+        {
+          "category": 2,
+          "log_prob": -0.044271708
+        }
+      ]
+    },
+    {
+      "segment": 6,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.0007100478
+        },
+        {
+          "category": 2,
+          "log_prob": -0.00012523093
+        }
+      ]
+    },
+    {
+      "segment": 7,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.39705914
+        }
+      ]
+    },
+    {
+      "segment": 8,
+      "categories": [
+        {
+          "category": 3,
+          "log_prob": -0.058756318
+        }
+      ]
+    },
+    {
+      "segment": 9,
+      "categories": [
+        {
+          "category": 2,
+          "log_prob": -0.0030803867
+        }
+      ]
+    },
+    {
+      "segment": 10,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.00017255111
+        }
+      ]
+    },
+    {
+      "segment": 11,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -4.00813e-06
+        }
+      ]
+    },
+    {
+      "segment": 12,
+      "categories": [
+        {
+          "category": "None",
+          "log_prob": 0
+        }
+      ]
+    }
+  ]
+}

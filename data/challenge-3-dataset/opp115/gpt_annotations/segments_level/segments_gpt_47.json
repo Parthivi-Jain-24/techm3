@@ -1,0 +1,496 @@
+{
+  "policy": 47,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.0031783062
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.001625668
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -0.41628453
+        }
+      ]
+    },
+    {
+      "segment": 3,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.29239085
+        }
+      ]
+    },
+    {
+      "segment": 4,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.00022535099
+        }
+      ]
+    },
+    {
+      "segment": 5,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.6240566e-06
+        }
+      ]
+    },
+    {
+      "segment": 6,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -3.2929079e-06
+        }
+      ]
+    },
+    {
+      "segment": 7,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.13449414
+        }
+      ]
+    },
+    {
+      "segment": 8,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.00024180108
+        }
+      ]
+    },
+    {
+      "segment": 9,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -3.523949e-05
+        },
+        {
+          "category": 1,
+          "log_prob": -0.0024779162
+        }
+      ]
+    },
+    {
+      "segment": 10,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.3856493e-06
+        }
+      ]
+    },
+    {
+      "segment": 11,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -5.5577775e-06
+        }
+      ]
+    },
+    {
+      "segment": 12,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.8624639e-06
+        },
+        {
+          "category": 1,
+          "log_prob": -0.00150236
+        }
+      ]
+    },
+    {
+      "segment": 13,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -7.89631e-07
+        },
+        {
+          "category": 8,
+          "log_prob": -0.20284238
+        }
+      ]
+    },
+    {
+      "segment": 14,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.12692948
+        },
+        {
+          "category": 1,
+          "log_prob": -0.0024763737
+        }
+      ]
+    },
+    {
+      "segment": 15,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -2.1008714e-06
+        },
+        {
+          "category": 1,
+          "log_prob": -0.038116194
+        },
+        {
+          "category": 2,
+          "log_prob": -0.00020771251
+        }
+      ]
+    },
+    {
+      "segment": 16,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.0067164367
+        }
+      ]
+    },
+    {
+      "segment": 17,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -4.596782e-05
+        }
+      ]
+    },
+    {
+      "segment": 18,
+      "categories": [
+        {
+          "category": 2,
+          "log_prob": -1.0445127e-05
+        },
+        {
+          "category": 3,
+          "log_prob": -0.00029601678
+        }
+      ]
+    },
+    {
+      "segment": 19,
+      "categories": [
+        {
+          "category": 2,
+          "log_prob": -7.564953e-05
+        },
+        {
+          "category": 3,
+          "log_prob": -0.00012356207
+        }
+      ]
+    },
+    {
+      "segment": 20,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.007175544
+        }
+      ]
+    },
+    {
+      "segment": 21,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.33442295
+        }
+      ]
+    },
+    {
+      "segment": 22,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.040713895
+        }
+      ]
+    },
+    {
+      "segment": 23,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.063104406
+        }
+      ]
+    },
+    {
+      "segment": 24,
+      "categories": [
+        {
+          "category": 3,
+          "log_prob": -0.0025410631
+        },
+        {
+          "category": 7,
+          "log_prob": -0.0015058133
+        }
+      ]
+    },
+    {
+      "segment": 25,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.000290891
+        }
+      ]
+    },
+    {
+      "segment": 26,
+      "categories": [
+        {
+          "category": 4,
+          "log_prob": -0.0018376068
+        },
+        {
+          "category": 5,
+          "log_prob": -0.00012344286
+        }
+      ]
+    },
+    {
+      "segment": 27,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.38744214
+        },
+        {
+          "category": 5,
+          "log_prob": -0.0035252403
+        },
+        {
+          "category": 7,
+          "log_prob": -7.3458323e-06
+        }
+      ]
+    },
+    {
+      "segment": 28,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -5.2001665e-06
+        }
+      ]
+    },
+    {
+      "segment": 29,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.25203156
+        }
+      ]
+    },
+    {
+      "segment": 30,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.2463165
+        },
+        {
+          "category": 3,
+          "log_prob": -0.14325793
+        },
+        {
+          "category": 7,
+          "log_prob": -9.0907604e-05
+        }
+      ]
+    },
+    {
+      "segment": 31,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.03305018
+        }
+      ]
+    },
+    {
+      "segment": 32,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.17179006
+        }
+      ]
+    },
+    {
+      "segment": 33,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.20946443
+        },
+        {
+          "category": 1,
+          "log_prob": -0.012207991
+        }
+      ]
+    },
+    {
+      "segment": 34,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.00012868783
+        }
+      ]
+    },
+    {
+      "segment": 35,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.0347012
+        }
+      ]
+    },
+    {
+      "segment": 36,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.2541051
+        }
+      ]
+    },
+    {
+      "segment": 37,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -5.5122365e-07
+        }
+      ]
+    },
+    {
+      "segment": 38,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.052445486
+        }
+      ]
+    },
+    {
+      "segment": 39,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -4.477578e-05
+        }
+      ]
+    },
+    {
+      "segment": 40,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.5303666
+        }
+      ]
+    },
+    {
+      "segment": 41,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.24019176
+        }
+      ]
+    },
+    {
+      "segment": 42,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.39577562
+        },
+        {
+          "category": 3,
+          "log_prob": -0.0037371337
+        }
+      ]
+    },
+    {
+      "segment": 43,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.12959152
+        }
+      ]
+    },
+    {
+      "segment": 44,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.00012487332
+        }
+      ]
+    },
+    {
+      "segment": 45,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.048608597
+        },
+        {
+          "category": 9,
+          "log_prob": -0.0052337637
+        }
+      ]
+    },
+    {
+      "segment": 46,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.049943097
+        }
+      ]
+    }
+  ]
+}

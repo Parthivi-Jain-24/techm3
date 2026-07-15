@@ -1,0 +1,76 @@
+{
+  "policy": 114,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.08524558
+        },
+        {
+          "category": 9,
+          "log_prob": -0.57888716
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -7.89631e-07
+        },
+        {
+          "category": 2,
+          "log_prob": -0.520161
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.8624639e-06
+        }
+      ]
+    },
+    {
+      "segment": 3,
+      "categories": [
+        {
+          "category": 3,
+          "log_prob": -5.550411e-05
+        }
+      ]
+    },
+    {
+      "segment": 4,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.00034046874
+        }
+      ]
+    },
+    {
+      "segment": 5,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -1.9361265e-07
+        }
+      ]
+    },
+    {
+      "segment": 6,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -1.147242e-06
+        }
+      ]
+    }
+  ]
+}

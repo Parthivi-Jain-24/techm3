@@ -1,0 +1,404 @@
+[
+  {
+    "policy": 30,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.00036013365
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00016957101
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0009408812
+      },
+      {
+        "category": 3,
+        "log_prob": -0.0039144265
+      },
+      {
+        "category": 4,
+        "log_prob": -0.6366183
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00035619995
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0068231164
+      },
+      {
+        "category": 7,
+        "log_prob": -0.0011954673
+      },
+      {
+        "category": 8,
+        "log_prob": -0.00075602374
+      },
+      {
+        "category": 9,
+        "log_prob": -2.2842309e-05
+      }
+    ]
+  },
+  {
+    "policy": 31,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -5.2643223e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.000115582756
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0006628762
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00027146813
+      },
+      {
+        "category": 4,
+        "log_prob": -0.112870224
+      },
+      {
+        "category": 5,
+        "log_prob": -4.894791e-05
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0059450334
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00017410076
+      },
+      {
+        "category": 9,
+        "log_prob": -0.22885574
+      }
+    ]
+  },
+  {
+    "policy": 32,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.33647344
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00092658773
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0018679487
+      },
+      {
+        "category": 3,
+        "log_prob": -0.002860274
+      },
+      {
+        "category": 4,
+        "log_prob": -0.70490414
+      },
+      {
+        "category": 5,
+        "log_prob": -0.000287557
+      },
+      {
+        "category": 6,
+        "log_prob": -0.00032545274
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00031627773
+      },
+      {
+        "category": 8,
+        "log_prob": -0.0013719071
+      },
+      {
+        "category": 9,
+        "log_prob": -1.1517961e-05
+      }
+    ]
+  },
+  {
+    "policy": 33,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -9.7821416e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00015872349
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0005461226
+      },
+      {
+        "category": 3,
+        "log_prob": -0.002963435
+      },
+      {
+        "category": 4,
+        "log_prob": -0.0010887817
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00084953266
+      },
+      {
+        "category": 6,
+        "log_prob": -0.22545457
+      },
+      {
+        "category": 7,
+        "log_prob": -0.000156101
+      },
+      {
+        "category": 9,
+        "log_prob": -0.20483488
+      }
+    ]
+  },
+  {
+    "policy": 34,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.000101874335
+      },
+      {
+        "category": 1,
+        "log_prob": -0.0004684458
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0048862277
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00069337396
+      },
+      {
+        "category": 4,
+        "log_prob": -0.112929106
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00013691289
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0043530986
+      },
+      {
+        "category": 7,
+        "log_prob": -0.06841787
+      },
+      {
+        "category": 9,
+        "log_prob": -0.63551
+      }
+    ]
+  },
+  {
+    "policy": 35,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.0007407767
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00014609157
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0004515262
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00060831755
+      },
+      {
+        "category": 4,
+        "log_prob": -0.20162763
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00022392054
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0046330458
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00018661347
+      },
+      {
+        "category": 9,
+        "log_prob": -0.34922183
+      }
+    ]
+  },
+  {
+    "policy": 36,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -4.8709502e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -6.659005e-05
+      },
+      {
+        "category": 2,
+        "log_prob": -0.012356127
+      },
+      {
+        "category": 3,
+        "log_prob": -0.03921332
+      },
+      {
+        "category": 4,
+        "log_prob": -0.31366634
+      },
+      {
+        "category": 5,
+        "log_prob": -0.0007998614
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0077174823
+      },
+      {
+        "category": 7,
+        "log_prob": -0.0019719347
+      },
+      {
+        "category": 8,
+        "log_prob": -0.02997078
+      }
+    ]
+  },
+  {
+    "policy": 37,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -5.5265704e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.31327364
+      },
+      {
+        "category": 2,
+        "log_prob": -5.4312077e-05
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00020652048
+      },
+      {
+        "category": 5,
+        "log_prob": -0.018163636
+      }
+    ]
+  },
+  {
+    "policy": 38,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -5.109358e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.5231296
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0015064093
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00016754455
+      },
+      {
+        "category": 4,
+        "log_prob": -0.05499873
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00018887833
+      },
+      {
+        "category": 6,
+        "log_prob": -0.008620013
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00049465225
+      },
+      {
+        "category": 9,
+        "log_prob": -0.0015339049
+      }
+    ]
+  },
+  {
+    "policy": 39,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.000112245056
+      },
+      {
+        "category": 1,
+        "log_prob": -8.566264e-05
+      },
+      {
+        "category": 2,
+        "log_prob": -0.000929091
+      },
+      {
+        "category": 3,
+        "log_prob": -0.0014921268
+      },
+      {
+        "category": 5,
+        "log_prob": -0.5290782
+      },
+      {
+        "category": 6,
+        "log_prob": -0.007660466
+      },
+      {
+        "category": 7,
+        "log_prob": -0.02649548
+      },
+      {
+        "category": 8,
+        "log_prob": -0.0060060597
+      },
+      {
+        "category": 9,
+        "log_prob": -1.9743013e-05
+      }
+    ]
+  }
+]

@@ -1,0 +1,151 @@
+{
+  "policy": 18,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.084307745
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -6.869018e-06
+        },
+        {
+          "category": 1,
+          "log_prob": -0.0019414882
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.0052375486
+        },
+        {
+          "category": 2,
+          "log_prob": -0.003194947
+        }
+      ]
+    },
+    {
+      "segment": 3,
+      "categories": [
+        {
+          "category": 2,
+          "log_prob": -0.013999307
+        }
+      ]
+    },
+    {
+      "segment": 4,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.014173267
+        },
+        {
+          "category": 2,
+          "log_prob": -0.020879118
+        }
+      ]
+    },
+    {
+      "segment": 5,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.018150995
+        }
+      ]
+    },
+    {
+      "segment": 6,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.018149942
+        },
+        {
+          "category": 2,
+          "log_prob": -0.00026217024
+        }
+      ]
+    },
+    {
+      "segment": 7,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.011050297
+        }
+      ]
+    },
+    {
+      "segment": 8,
+      "categories": [
+        {
+          "category": 5,
+          "log_prob": -0.00012546933
+        }
+      ]
+    },
+    {
+      "segment": 9,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -0.11534711
+        },
+        {
+          "category": 9,
+          "log_prob": -0.43054578
+        }
+      ]
+    },
+    {
+      "segment": 10,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -6.704273e-07
+        }
+      ]
+    },
+    {
+      "segment": 11,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -1.147242e-06
+        }
+      ]
+    },
+    {
+      "segment": 12,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -8.3993786e-05
+        }
+      ]
+    },
+    {
+      "segment": 13,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -1.8624639e-06
+        }
+      ]
+    }
+  ]
+}

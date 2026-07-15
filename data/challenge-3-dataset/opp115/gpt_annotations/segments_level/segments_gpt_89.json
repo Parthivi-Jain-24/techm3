@@ -1,0 +1,32 @@
+{
+  "policy": 89,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.0040786397
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -4.1914896e-05
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 3,
+          "log_prob": -0.011070696
+        }
+      ]
+    }
+  ]
+}

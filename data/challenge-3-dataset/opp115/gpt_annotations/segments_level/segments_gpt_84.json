@@ -1,0 +1,124 @@
+{
+  "policy": 84,
+  "segments": [
+    {
+      "segment": 0,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.0015126006
+        }
+      ]
+    },
+    {
+      "segment": 1,
+      "categories": [
+        {
+          "category": 6,
+          "log_prob": -0.0044162287
+        }
+      ]
+    },
+    {
+      "segment": 2,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": -0.07697472
+        }
+      ]
+    },
+    {
+      "segment": 3,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -3.1281633e-07
+        }
+      ]
+    },
+    {
+      "segment": 4,
+      "categories": [
+        {
+          "category": 0,
+          "log_prob": -6.704273e-07
+        }
+      ]
+    },
+    {
+      "segment": 5,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.002476724
+        }
+      ]
+    },
+    {
+      "segment": 6,
+      "categories": [
+        {
+          "category": 2,
+          "log_prob": -0.16150478
+        },
+        {
+          "category": 3,
+          "log_prob": -0.0059884014
+        }
+      ]
+    },
+    {
+      "segment": 7,
+      "categories": [
+        {
+          "category": 5,
+          "log_prob": -0.008682882
+        },
+        {
+          "category": 9,
+          "log_prob": -0.00012368128
+        }
+      ]
+    },
+    {
+      "segment": 8,
+      "categories": [
+        {
+          "category": 9,
+          "log_prob": 0.0
+        }
+      ]
+    },
+    {
+      "segment": 9,
+      "categories": [
+        {
+          "category": 7,
+          "log_prob": -0.0040949048
+        },
+        {
+          "category": 9,
+          "log_prob": -0.006715371
+        }
+      ]
+    },
+    {
+      "segment": 10,
+      "categories": [
+        {
+          "category": 1,
+          "log_prob": -0.0029821023
+        },
+        {
+          "category": 7,
+          "log_prob": -0.027933285
+        },
+        {
+          "category": 9,
+          "log_prob": -0.00038134094
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,368 @@
+[
+  {
+    "policy": 80,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -1.4259645e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.061977994
+      },
+      {
+        "category": 2,
+        "log_prob": -0.00031639694
+      },
+      {
+        "category": 3,
+        "log_prob": -3.9888433e-05
+      },
+      {
+        "category": 5,
+        "log_prob": -0.03043053
+      },
+      {
+        "category": 6,
+        "log_prob": -0.008620013
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00015622021
+      },
+      {
+        "category": 9,
+        "log_prob": -0.18067275
+      }
+    ]
+  },
+  {
+    "policy": 81,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.00023488728
+      },
+      {
+        "category": 1,
+        "log_prob": -0.63261044
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0070361085
+      },
+      {
+        "category": 5,
+        "log_prob": -0.47648385
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0024240527
+      },
+      {
+        "category": 7,
+        "log_prob": -0.009777103
+      },
+      {
+        "category": 8,
+        "log_prob": -0.0013477345
+      },
+      {
+        "category": 9,
+        "log_prob": -2.4749568e-05
+      }
+    ]
+  },
+  {
+    "policy": 82,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.0003000697
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00016539889
+      },
+      {
+        "category": 2,
+        "log_prob": -0.005697454
+      },
+      {
+        "category": 3,
+        "log_prob": -0.0016748258
+      },
+      {
+        "category": 4,
+        "log_prob": -0.0019617015
+      },
+      {
+        "category": 5,
+        "log_prob": -5.2047206e-05
+      },
+      {
+        "category": 6,
+        "log_prob": -0.003207777
+      },
+      {
+        "category": 7,
+        "log_prob": -0.0007934243
+      },
+      {
+        "category": 9,
+        "log_prob": -0.114213824
+      }
+    ]
+  },
+  {
+    "policy": 83,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -8.537869e-06
+      },
+      {
+        "category": 1,
+        "log_prob": -0.00014239625
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0006270142
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00048179293
+      },
+      {
+        "category": 4,
+        "log_prob": -0.12713641
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00017767686
+      },
+      {
+        "category": 6,
+        "log_prob": -0.018318152
+      },
+      {
+        "category": 7,
+        "log_prob": -0.0010453128
+      },
+      {
+        "category": 8,
+        "log_prob": -0.0008433377
+      }
+    ]
+  },
+  {
+    "policy": 84,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -4.2272506e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.22542688
+      },
+      {
+        "category": 2,
+        "log_prob": -9.984788e-05
+      },
+      {
+        "category": 3,
+        "log_prob": -0.038649995
+      },
+      {
+        "category": 5,
+        "log_prob": -0.057727624
+      },
+      {
+        "category": 6,
+        "log_prob": -0.00674829
+      },
+      {
+        "category": 7,
+        "log_prob": -0.0015085549
+      },
+      {
+        "category": 9,
+        "log_prob": -0.0008759702
+      }
+    ]
+  },
+  {
+    "policy": 85,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -7.398068e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -6.980855e-05
+      },
+      {
+        "category": 2,
+        "log_prob": -0.035197347
+      },
+      {
+        "category": 3,
+        "log_prob": -0.16065718
+      },
+      {
+        "category": 5,
+        "log_prob": -0.63276386
+      },
+      {
+        "category": 6,
+        "log_prob": -0.1426981
+      },
+      {
+        "category": 7,
+        "log_prob": -5.931863e-05
+      },
+      {
+        "category": 9,
+        "log_prob": -0.100535415
+      }
+    ]
+  },
+  {
+    "policy": 86,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -6.3490756e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.0002753982
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0020095296
+      },
+      {
+        "category": 3,
+        "log_prob": -0.0031764025
+      },
+      {
+        "category": 4,
+        "log_prob": -0.032226373
+      },
+      {
+        "category": 5,
+        "log_prob": -0.001752653
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0015446186
+      },
+      {
+        "category": 7,
+        "log_prob": -0.00016003472
+      },
+      {
+        "category": 8,
+        "log_prob": -0.018276483
+      },
+      {
+        "category": 9,
+        "log_prob": -2.5226382e-05
+      }
+    ]
+  },
+  {
+    "policy": 87,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -0.0046558306
+      },
+      {
+        "category": 1,
+        "log_prob": -0.100214005
+      },
+      {
+        "category": 2,
+        "log_prob": -0.0027748016
+      },
+      {
+        "category": 6,
+        "log_prob": -0.09712181
+      },
+      {
+        "category": 9,
+        "log_prob": -0.0010523385
+      }
+    ]
+  },
+  {
+    "policy": 88,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -5.8603408e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -0.69316363
+      },
+      {
+        "category": 2,
+        "log_prob": -0.00446252
+      },
+      {
+        "category": 3,
+        "log_prob": -0.00013631687
+      },
+      {
+        "category": 4,
+        "log_prob": -0.007668029
+      },
+      {
+        "category": 5,
+        "log_prob": -0.00011462913
+      },
+      {
+        "category": 6,
+        "log_prob": -0.0015324745
+      },
+      {
+        "category": 7,
+        "log_prob": -0.003674656
+      },
+      {
+        "category": 8,
+        "log_prob": -0.47495267
+      },
+      {
+        "category": 9,
+        "log_prob": -4.1318875e-05
+      }
+    ]
+  },
+  {
+    "policy": 89,
+    "categories": [
+      {
+        "category": 0,
+        "log_prob": -1.1994775e-05
+      },
+      {
+        "category": 1,
+        "log_prob": -1.0344942
+      },
+      {
+        "category": 2,
+        "log_prob": -0.47412384
+      },
+      {
+        "category": 3,
+        "log_prob": -4.1273333e-06
+      }
+    ]
+  }
+]
