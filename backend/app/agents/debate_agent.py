@@ -18,12 +18,12 @@ import logging
 import re
 from typing import Any
 
-from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from app.config import settings
 from app.schemas.debate import DebateArgument, DebateVerdict
 from app.schemas.findings import InvestigationFinding
+from app.agents.demo_pipeline import demo_debate
 
 logger = logging.getLogger(__name__)
 
@@ -94,6 +94,8 @@ async def _llm_call(
     schema: dict[str, Any],
     schema_name: str,
 ) -> dict:
+    from openai import AsyncOpenAI
+
     nvidia_client = AsyncOpenAI(
         base_url=settings.llm_base_url,
         # Local OpenAI-compatible servers (Ollama) ignore auth, but the client
@@ -161,6 +163,12 @@ async def run_debate(finding: InvestigationFinding) -> DebateResult:
     Prosecutor and defender run concurrently (both only need the finding).
     The judge runs after both complete, receiving all three inputs.
     """
+
+    if settings.llm_mode.lower() == "demo":
+        prosecution, defense, verdict = demo_debate(finding)
+        return DebateResult(
+            finding=finding, prosecution=prosecution, defense=defense, verdict=verdict
+        )
 
     prosecution_coro = _llm_call(
         PROSECUTOR_PROMPT,

@@ -1,4 +1,4 @@
-# SHARED FILE — coordinate changes with all workstreams before modifying.
+﻿# SHARED FILE — coordinate changes with all workstreams before modifying.
 #
 # FastAPI application entrypoint for the Continuous KYC Autonomous Auditor.
 
@@ -10,11 +10,7 @@ from app.audit.middleware import AuditContextMiddleware
 from app.core.config import settings
 from app.core.security import SecurityHeadersMiddleware
 
-# Legacy investigation router support
-try:
-    from app.routers import investigation
-except ImportError:
-    investigation = None
+from app.routers.investigation import router as investigation_router
 
 
 app = FastAPI(
@@ -56,9 +52,8 @@ else:
     app.include_router(api_router)
 
 
-# Existing investigation routes
-if investigation:
-    app.include_router(investigation.router)
+# Investigation and case-workflow routes
+app.include_router(investigation_router)
 
 
 @app.get("/health", tags=["health"])
@@ -72,3 +67,5 @@ async def health_check() -> dict:
     return {
         "status": "ok"
     }
+
+

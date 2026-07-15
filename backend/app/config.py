@@ -3,6 +3,9 @@ from pathlib import Path
 
 
 class Settings(BaseSettings):
+    # Local development uses bundled records and no external LLM service.
+    # Set LLM_MODE=provider to call the configured OpenAI-compatible endpoint.
+    llm_mode: str = "demo"
     gemini_api_key: str = ""
     nvidia_api_key: str = ""
     model_name: str = "gemini-3.1-flash-lite"

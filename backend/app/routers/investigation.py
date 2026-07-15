@@ -1,4 +1,4 @@
-"""API routes for autonomous investigation.
+﻿"""API routes for autonomous investigation.
 
 Endpoints
 ---------
@@ -11,7 +11,7 @@ POST /api/v1/investigate                 — legacy alert-based stub (kept for c
 from __future__ import annotations
 
 import logging
-from typing import Optional
+from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
@@ -19,7 +19,6 @@ from pydantic import BaseModel, Field
 from app.data_loaders import get_client_profile, list_all_client_ids
 from app.schemas.investigation import InvestigationRequest, InvestigationResult
 from app.services.investigation_service import run_investigation
-from app.services.orchestrator import PipelineResult, PipelineOutcome, run_pipeline
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +27,7 @@ router = APIRouter(prefix="/api/v1", tags=["investigation"])
 # ── In-memory results cache ────────────────────────────────────────
 # Single-process dev server — no need for Redis/DB yet.
 # Keys are client_ids; values are completed PipelineResults.
-_results_cache: dict[int, PipelineResult] = {}
+_results_cache: dict[int, Any] = {}
 _running: set[int] = set()
 
 
@@ -60,7 +59,7 @@ class PipelineStatusResponse(BaseModel):
         ...,
         description="not_started | running | completed | error",
     )
-    result: Optional[PipelineResult] = None
+    result: Optional[Any] = None
     error: Optional[str] = None
 
 
@@ -98,7 +97,6 @@ async def list_clients():
 
 @router.post(
     "/investigate/{client_id}",
-    response_model=PipelineResult,
     summary="Run full investigation pipeline",
 )
 async def investigate_client(client_id: int):
@@ -125,6 +123,8 @@ async def investigate_client(client_id: int):
 
     _running.add(client_id)
     try:
+        from app.services.orchestrator import run_pipeline
+
         result = await run_pipeline(client_id)
         _results_cache[client_id] = result
         return result
@@ -176,7 +176,7 @@ async def investigate_status(client_id: int):
             status="not_started",
         )
 
-    status = "error" if cached.outcome == PipelineOutcome.ERROR else "completed"
+    status = "error" if str(getattr(cached, "outcome", "")) == "error" else "completed"
     return PipelineStatusResponse(
         client_id=client_id,
         status=status,
@@ -195,3 +195,4 @@ async def investigate_status(client_id: int):
 )
 async def investigate_legacy(req: InvestigationRequest):
     return await run_investigation(req.alert)
+

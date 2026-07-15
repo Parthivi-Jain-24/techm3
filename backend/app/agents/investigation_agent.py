@@ -11,7 +11,6 @@ import json
 import logging
 import re
 
-from openai import AsyncOpenAI
 
 from app.config import settings
 from app.data_loaders import (
@@ -21,6 +20,7 @@ from app.data_loaders import (
     get_adverse_media,
 )
 from app.schemas.findings import InvestigationFinding
+from app.agents.demo_pipeline import demo_finding
 
 logger = logging.getLogger(__name__)
 
@@ -111,6 +111,12 @@ def _gather_context(client_id: int) -> tuple[dict | None, list[dict], list[dict]
 
 async def investigate(client_id: int) -> InvestigationFinding:
     """Run a full investigation for *client_id* and return a validated finding."""
+
+    if settings.llm_mode.lower() == "demo":
+        return demo_finding(client_id)
+
+
+    from openai import AsyncOpenAI
 
     profile, transactions, sanctions, news = _gather_context(client_id)
 

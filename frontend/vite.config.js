@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+﻿import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // The console spans four backends, so /api alone is not enough -- each path
@@ -9,10 +9,10 @@ import react from "@vitejs/plugin-react";
 // so one target covers Part 1 and Part 4. :8001 404s the investigation routes.
 // The previous target, :8000, is not where any service in this repo listens --
 // every request 502'd.
-const P1_P4 = process.env.VITE_API_TARGET || "http://localhost:8002"; // identity + investigation
-const P3_P5 = process.env.VITE_RISK_TARGET || "http://localhost:8003"; // risk + governance
-const P2 = process.env.VITE_ENTITY_TARGET || "http://localhost:8004"; // entity intelligence
-const P1 = process.env.VITE_IDENTITY_TARGET || "http://localhost:8001"; // Part 1 standalone
+const P1_P4 = process.env.VITE_API_TARGET || "http://127.0.0.1:8002"; // identity + investigation
+const P3_P5 = process.env.VITE_RISK_TARGET || "http://127.0.0.1:8003"; // risk + governance
+const P2 = process.env.VITE_ENTITY_TARGET || "http://127.0.0.1:8004"; // entity intelligence
+const P1 = process.env.VITE_IDENTITY_TARGET || "http://127.0.0.1:8001"; // Part 1 standalone
 
 const proxy = (target) => ({ target, changeOrigin: true });
 
@@ -36,3 +36,4 @@ export default defineConfig({
     },
   },
 });
+

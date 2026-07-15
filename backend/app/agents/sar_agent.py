@@ -21,7 +21,6 @@ import json
 import logging
 import re
 
-from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from app.config import settings
@@ -30,6 +29,7 @@ from app.schemas.findings import InvestigationFinding
 from app.schemas.debate import DebateVerdict
 from app.agents.grounding_guardrail import verify_sar, GuardrailResult
 from app.agents.privacy_guardrail import redact_sar, PrivacyGuardrailResult
+from app.agents.demo_pipeline import demo_sar
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +102,15 @@ async def draft_sar(
     2. ``redact_sar()`` — privacy guardrail redacts PII and appends
        GDPR article references.
     """
+
+    if settings.llm_mode.lower() == "demo":
+        draft = demo_sar(finding, verdict)
+        grounded, grounding_result = verify_sar(draft)
+        redacted, privacy_result = redact_sar(grounded)
+        return SARResult(sar=redacted, grounding=grounding_result, privacy=privacy_result)
+
+
+    from openai import AsyncOpenAI
 
     user_prompt = _build_user_prompt(finding, verdict)
 

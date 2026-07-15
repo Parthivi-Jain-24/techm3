@@ -30,6 +30,7 @@ openpyxl
 
 # --- HTTP client (Phase 5 outbound API ingestion; also used by TestClient) ---
 httpx
+openai>=1.0.0
 
 # --- Encryption at rest (Phase 6) — maintained AEAD primitive (AES-256-GCM) ---
 cryptography

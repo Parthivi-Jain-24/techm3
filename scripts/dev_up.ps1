@@ -23,6 +23,11 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $py = Join-Path $root ".venv\Scripts\python.exe"
 
+if (-not (Test-Path $py)) { throw "Virtual environment not found. Create it first with: py -3 -m venv .venv" }
+Write-Host "Checking Python dependencies..."
+& $py -m pip install -q -r (Join-Path $root "requirements.txt") -r (Join-Path $root "backend\requirements.txt") -e $root
+if ($LASTEXITCODE -ne 0) { throw "Python dependency installation failed." }
+
 # --- Part 1 needs a JWT secret and at least one demo user (it is default-deny).
 # DEV ONLY: these values are for local demos, never production.
 if (-not $env:JWT_SECRET_KEY) {
@@ -37,6 +42,7 @@ if (-not $env:DEV_AUTH_USERS) {
 
 # --- Part 4's LLM: default to the local Ollama model (free, no key, no egress).
 # Point LLM_BASE_URL / MODEL_NAME elsewhere for a hosted provider.
+if (-not $env:LLM_MODE)     { $env:LLM_MODE = "demo" }
 if (-not $env:LLM_BASE_URL) { $env:LLM_BASE_URL = "http://localhost:11434/v1" }
 if (-not $env:MODEL_NAME)   { $env:MODEL_NAME = "qwen2.5:7b" }
 
