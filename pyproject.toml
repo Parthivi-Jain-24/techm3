@@ -1,15 +1,62 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
 [project]
-name = "continuous-kyc-risk-engine"
+name = "projecttechm"
 version = "0.1.0"
-description = "Explainable risk scoring engine for a Continuous KYC Autonomous Auditor."
-requires-python = ">=3.10"
-dependencies = []
+description = "Continuous KYC Autonomous Auditor scaffold for Tech Mahindra CODE Hackathon"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+  "pydantic>=2.7",
+  "rapidfuzz>=3.9",
+  "networkx>=3.3",
+  "fastapi>=0.115",
+  "uvicorn[standard]>=0.30",
+]
 
 [project.optional-dependencies]
-api = ["fastapi>=0.111", "uvicorn>=0.30"]
-test = ["pytest>=8.0"]
+
+# API dependencies
+api = [
+  "fastapi>=0.111",
+  "uvicorn>=0.30",
+]
+
+# ML / semantic matching dependencies
+ml = [
+  "sentence-transformers>=3.0",
+  "torch>=2.3",
+]
+
+# Development and testing dependencies
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.6",
+  "httpx>=0.27",
+]
+
+# Basic testing compatibility
+test = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+projecttechm-demo = "projecttechm.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/projecttechm"]
+
+[tool.ruff]
+line-length = 100
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-
+addopts = "-q"
+testpaths = [
+    "tests"
+]
+pythonpath = [
+    "."
+]

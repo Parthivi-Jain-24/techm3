@@ -7,7 +7,7 @@ containing all three outputs plus the final verdict.
 The prosecutor and defender run in parallel (they only need the finding);
 the judge runs after both, receiving the finding plus both arguments.
 
-Uses Google Gemini 2.5 Flash free tier via Google AI Studio API.
+Uses NVIDIA GLM-5.2 via OpenAI-compatible API.
 """
 
 from __future__ import annotations
@@ -15,9 +15,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from typing import Any
 
-import httpx
+from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from app.config import settings
@@ -26,7 +27,14 @@ from app.schemas.findings import InvestigationFinding
 
 logger = logging.getLogger(__name__)
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+
+def _extract_json(text: str) -> str:
+    """Strip markdown code fences if the model wraps output in ```json ... ```."""
+    text = text.strip()
+    match = re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", text)
+    if match:
+        return match.group(1).strip()
+    return text
 
 # ── System prompts (verbatim from spec) ─────────────────────────────
 
@@ -86,41 +94,28 @@ async def _llm_call(
     schema: dict[str, Any],
     schema_name: str,
 ) -> dict:
-    url = GEMINI_API_URL.format(model=settings.model_name)
+    nvidia_client = AsyncOpenAI(
+        base_url=settings.llm_base_url,
+        # Local OpenAI-compatible servers (Ollama) ignore auth, but the client
+        # requires a non-empty value.
+        api_key=settings.nvidia_api_key or "not-needed",
+    )
 
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": system_prompt + "\n\n" + user_prompt}],
-            }
+    response = await nvidia_client.chat.completions.create(
+        model=settings.model_name,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user",   "content": user_prompt},
         ],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "temperature": 0.3,
-        },
-    }
+        temperature=0.3,
+        top_p=1,
+        max_tokens=4096,
+        seed=42,
+    )
 
-    params = {"key": settings.gemini_api_key}
-
-    import asyncio as _asyncio
-
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        for attempt in range(4):
-            resp = await client.post(url, json=payload, params=params)
-            if resp.status_code in (429, 503) and attempt < 3:
-                wait = (attempt + 1) * 10
-                logger.warning("Rate limited (429), retrying in %ds (attempt %d/3)", wait, attempt + 1)
-                await _asyncio.sleep(wait)
-                continue
-            if resp.status_code != 200:
-                logger.error("Gemini API error %s: %s", resp.status_code, resp.text)
-            resp.raise_for_status()
-            break
-
-    body = resp.json()
-    content = body["candidates"][0]["content"]["parts"][0]["text"]
-    return json.loads(content)
+    content = response.choices[0].message.content
+    logger.debug("Raw debate LLM response: %s", content[:300])
+    return json.loads(_extract_json(content))
 
 
 # ── Prompt builders ─────────────────────────────────────────────────

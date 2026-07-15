@@ -1,0 +1,48 @@
+# SHARED FILE — coordinate changes with all workstreams before modifying.
+#
+# Placeholder local development stack. No real credentials belong here;
+# all values are sourced from environment variables / .env at runtime.
+
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kyc_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-kyc_password}
+      POSTGRES_DB: ${POSTGRES_DB:-continuous_kyc}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # backend:
+  #   build: ./backend
+  #   env_file: .env
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - postgres
+
+  # frontend:
+  #   build: ./frontend
+  #   ports:
+  #     - "5173:5173"
+
+  # vault:
+  #   LOCAL DEV-MODE ONLY (Phase 8) — in-memory, non-persistent, NOT production
+  #   secure. Uncomment to run a local HashiCorp Vault for the secrets-vault
+  #   demonstration. See docs/secrets-vault.md for the full workflow. Root
+  #   token below is a fixed LOCAL-ONLY dev convenience value (Vault dev mode
+  #   always prints/accepts a root token; it is meaningless outside this
+  #   throwaway in-memory container) — never a real production credential.
+  #   image: hashicorp/vault:1.15
+  #   command: ["server", "-dev", "-dev-root-token-id=dev-only-root-token"]
+  #   cap_add:
+  #     - IPC_LOCK
+  #   ports:
+  #     - "8200:8200"
+
+volumes:
+  postgres_data:

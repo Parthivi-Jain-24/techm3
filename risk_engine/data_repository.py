@@ -10,10 +10,36 @@ from typing import Any
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-DATA_ROOT = PROJECT_ROOT / "data" / "challenge-3-dataset"
-CLIENTS_CSV = DATA_ROOT / "kyc_profiles" / "clients_with_fatf_ofac.csv"
-TRANSACTIONS_CSV = DATA_ROOT / "kyc_profiles" / "transactions_with_fatf_ofac.csv"
-SAML_D_CSV = DATA_ROOT / "aml_transactions" / "SAML-D.csv"
+
+# Two dataset layouts are both in use across the team: the challenge download
+# script writes to data/<category>/..., while this engine's memory doc assumed a
+# nested data/challenge-3-dataset/<category>/... Resolve each file at whichever
+# layout is present so neither a teammate's nested copy nor the official flat one
+# breaks. Override the base with the RISK_ENGINE_DATA_ROOT env var.
+_DATA_CANDIDATES = (
+    Path(os.environ["RISK_ENGINE_DATA_ROOT"]) if os.environ.get("RISK_ENGINE_DATA_ROOT") else None,
+    PROJECT_ROOT / "data" / "challenge-3-dataset",
+    PROJECT_ROOT / "data",
+)
+
+
+def _resolve(*relative: str) -> Path:
+    """First existing path for a dataset file across the known layouts.
+
+    Falls back to the nested layout when the file is absent everywhere, so
+    error messages still name a concrete expected path.
+    """
+    tail = Path(*relative)
+    for base in _DATA_CANDIDATES:
+        if base is not None and (base / tail).exists():
+            return base / tail
+    return (PROJECT_ROOT / "data" / "challenge-3-dataset") / tail
+
+
+DATA_ROOT = PROJECT_ROOT / "data"
+CLIENTS_CSV = _resolve("kyc_profiles", "clients_with_fatf_ofac.csv")
+TRANSACTIONS_CSV = _resolve("kyc_profiles", "transactions_with_fatf_ofac.csv")
+SAML_D_CSV = _resolve("aml_transactions", "SAML-D.csv")
 
 
 @dataclass(frozen=True)

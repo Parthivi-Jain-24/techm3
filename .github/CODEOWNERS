@@ -1,0 +1,41 @@
+# CODEOWNERS
+#
+# Defines review ownership per workstream to minimize merge conflicts.
+# GitHub will automatically request reviews from the relevant owners
+# when a PR touches these paths. Replace the placeholder handles below
+# with actual GitHub usernames/teams once assigned.
+
+# --- Workstream 1: Secure Data Ingestion, Auth, PII Protection, Database ---
+/backend/app/ingestion/            @workstream1-owner
+/backend/app/identity/             @workstream1-owner
+/backend/app/privacy/              @workstream1-owner
+/backend/app/database/             @workstream1-owner
+/backend/app/core/security.py      @workstream1-owner
+/infrastructure/database/          @workstream1-owner
+
+# --- Workstream 2: Entity Resolution, OpenSanctions, OFAC, Adverse Media ---
+/backend/app/entity_intelligence/  @workstream2-owner
+/backend/app/integrations/sanctions/ @workstream2-owner
+/backend/app/integrations/news/    @workstream2-owner
+
+# --- Workstream 3: AML Transaction Monitoring, ML, Risk Scoring ---
+/backend/app/risk_intelligence/    @workstream3-owner
+/ml/                               @workstream3-owner
+
+# --- Workstream 4: Agent Orchestration, Investigation, Evidence, SAR Drafting ---
+/backend/app/agents/               @workstream4-owner
+/backend/app/evidence/             @workstream4-owner
+
+# --- Workstream 5: Frontend, Case Management, Human Review, Audit UI ---
+/frontend/                         @workstream5-owner
+/backend/app/cases/                @workstream5-owner
+/backend/app/audit/                @workstream5-owner @workstream1-owner
+
+# --- Shared files: require coordination / broader review ---
+/backend/app/main.py               @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/backend/app/api/v1/router.py      @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/backend/app/core/config.py        @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/backend/app/database/base.py      @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/docker-compose.yml                @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/backend/requirements.txt          @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner
+/frontend/package.json             @workstream1-owner @workstream2-owner @workstream3-owner @workstream4-owner @workstream5-owner

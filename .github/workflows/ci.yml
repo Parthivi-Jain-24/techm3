@@ -1,0 +1,47 @@
+# Placeholder CI pipeline. Expand per-workstream as implementations land.
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+jobs:
+  backend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          if [ -f backend/requirements.txt ]; then pip install -r backend/requirements.txt; fi
+      - name: Run backend tests (placeholder)
+        run: |
+          echo "TODO: wire up pytest once backend modules exist"
+
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install dependencies (placeholder)
+        run: |
+          echo "TODO: npm ci once frontend/package.json has real dependencies"
+      - name: Run frontend tests (placeholder)
+        run: |
+          echo "TODO: wire up frontend test runner"
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Basic secret pattern check (placeholder)
+        run: |
+          echo "TODO: integrate a real secret scanner (e.g., gitleaks, trufflehog)"
