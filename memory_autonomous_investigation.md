@@ -6,9 +6,9 @@ Part 4 scaffold: **Autonomous Investigation** module for a Continuous KYC system
 
 - **FastAPI backend** (`/backend`) with a modular package layout under `/backend/app`.
 - **Vite + React frontend** (`/frontend`) with a minimal investigation dashboard that calls the backend API.
-- **Data loader modules** (`/backend/app/data_loaders/`) — four specialized loaders that read CSVs and JSON from `/data`, cache in memory on first access, and expose clean query functions.
+- **Data loader modules** (`/backend/app/data_loaders/`) — five specialized loaders that read CSVs and JSON from `/data`, cache in memory on first access, and expose clean query functions plus real-time live news RSS screening.
 - **Pipeline schemas** (`/backend/app/schemas/`) — Pydantic v2 models for every stage of the investigation pipeline: screening → investigation → debate → SAR.
-- **Investigation agent** (`/backend/app/agents/investigation_agent.py`) — LLM-powered agent that gathers client data via loaders, calls OpenRouter (Gemini 2.5 Flash), and returns a validated `InvestigationFinding`.
+- **Investigation agent** (`/backend/app/agents/investigation_agent.py`) — LLM-powered agent that gathers client data via loaders (plus live adverse news), calls NVIDIA API (`z-ai/glm-5.2` / `mistralai/mistral-nemotron` via `openai` Python SDK), and returns a validated `InvestigationFinding`.
 - **Debate agent** (`/backend/app/agents/debate_agent.py`) — Adversarial cross-check: prosecutor, defender, and judge LLM calls that evaluate an `InvestigationFinding` and produce a `DebateVerdict`.
 - **Grounding guardrail** (`/backend/app/agents/grounding_guardrail.py`) — Post-LLM validation that verifies every evidence citation resolves to real data. Strips unverifiable claims and collects them in a separate list.
 - **Privacy guardrail** (`/backend/app/agents/privacy_guardrail.py`) — Rule-based PII redaction pass on `SARDraft` before human review. Redacts DOB, SSN, passport numbers, email, phone, and account numbers. Tags each redaction with GDPR article justification and OPP-115 category.
@@ -38,11 +38,11 @@ TMCode2/
 │       ├── main.py                        # FastAPI app with CORS for localhost:5173
 │       ├── config.py                      # Settings via pydantic-settings (env vars)
 │       ├── agents/
-│       │   ├── investigation_agent.py     # LLM investigation agent (OpenRouter / Gemini 2.5 Flash)
+│       │   ├── investigation_agent.py     # LLM investigation agent (NVIDIA API / GLM-5.2 & Mistral Nemotron)
 │       │   ├── debate_agent.py            # Adversarial cross-check: prosecutor, defender, judge
 │       │   ├── sar_agent.py               # SAR drafting agent — LLM + grounding + privacy guardrails
 │       │   ├── grounding_guardrail.py     # Evidence citation verifier — strips ungrounded claims
-│       │   └── privacy_guardrail.py      # PII redaction pass on SARDraft before human review
+│       │   └── privacy_guardrail.py       # PII redaction pass on SARDraft before human review
 │       ├── routers/
 │       │   └── investigation.py           # API routes: GET /clients, POST/GET /investigate/{id}
 │       ├── services/
@@ -61,7 +61,8 @@ TMCode2/
 │           ├── kyc_loader.py              # Client profiles
 │           ├── transaction_loader.py      # Transactions via account mapping join
 │           ├── sanctions_loader.py        # OFAC SDN + OpenSanctions fuzzy search
-│           └── gdpr_loader.py             # GDPR article keyword search
+│           ├── gdpr_loader.py             # GDPR article keyword search
+│           └── adverse_media_loader.py    # Live Google News RSS screening (sub-second, free)
 └── frontend/
     ├── package.json
     ├── vite.config.js                     # Dev proxy /api → localhost:8000
@@ -288,12 +289,20 @@ OFAC SDN assumed columns (no header): `ent_num, SDN_Name, SDN_Type, Program, Tit
 
 Note: GDPR data has 661 entries across 99 unique `article_id` values — each entry is a paragraph/sub-section. Search deduplicates by exact `article_text`.
 
+### adverse_media_loader.py
+
+| Function | Signature | Returns |
+|---|---|---|
+| `get_adverse_media` | `(client_name: str, *, max_articles: int=4) -> list[dict]` | Live news articles with `{source_id, title, url, published, source}` |
+
+Note: Queries Google News RSS (`https://news.google.com/rss/search?q=...`) in real-time. Sub-second latency, 100% free forever, no API key needed. Fallbacks to general AML/sanctions news alerts if exact corporate name has zero news hits.
+
 ## Key Decisions
 
 | Decision | Rationale |
 |---|---|
 | **pydantic-settings** for config | Reads `.env` automatically; type-safe settings with defaults |
-| **OpenRouter** as LLM gateway | Single API key for multiple model providers |
+| **NVIDIA API (`integrate.api.nvidia.com`)** | High-performance enterprise LLMs accessed via standard `openai` Python SDK |
 | **Vite dev proxy** (`/api → :8000`) | Avoids CORS issues in dev without extra config; CORS middleware is also present as a fallback |
 | **Pydantic v2** schemas | `RiskLevel` enum, typed `Finding` & `InvestigationResult` for strict request/response validation |
 | **Data loaded from `/data` folder** | Keeps sample data separate from app code; path configurable via `DATA_FOLDER` env var |
@@ -306,7 +315,7 @@ Note: GDPR data has 661 entries across 99 unique `article_id` values — each en
 | **Schemas split by pipeline stage** | Each file maps to one pipeline step; keeps imports focused and makes the data-flow explicit |
 | **EvidenceItem as shared building block** | Used in InvestigationFinding.evidence, DebateArgument.cited_evidence (by source_id ref), and SARDraft.evidence_appendix — single chain of provenance |
 | **DebateVerdict.verdict as 3-way enum** | `escalate_to_sar` triggers SAR generation; `false_positive_clear` closes the case; `further_investigation` schedules re-investigation — covers all real outcomes |
-| **Gemini 2.5 Flash via OpenRouter** | Fast, cheap, good at structured JSON output — ideal for high-volume compliance screening where latency matters |
+| **GLM-5.2 & Mistral Nemotron via NVIDIA API** | Enterprise-grade reasoning models (`z-ai/glm-5.2` and `mistralai/mistral-nemotron`) ideal for high-volume compliance screening and complex adversarial debate |
 | **Structured output via `response_format.json_schema`** | Enforces InvestigationFinding schema server-side with `strict: true`; schema also included in prompt as a hint for models that ignore the API-level constraint |
 | **Prosecutor + Defender run in parallel** | Both only need the InvestigationFinding — no data dependency between them, so `asyncio.gather` cuts wall-clock time nearly in half |
 | **Position/verdict forced after LLM parse** | `raw["position"] = "risk_confirmed"` / `"false_positive"` ensures the model can't accidentally swap roles, same pattern as investigation agent forcing `client_id` |
@@ -420,8 +429,8 @@ The agent calls three data loaders internally — callers only pass `client_id`:
 
 | Setting | Value |
 |---|---|
-| **Provider** | OpenRouter (`https://openrouter.ai/api/v1/chat/completions`) |
-| **Model** | `google/gemini-2.5-flash` (configurable via `MODEL_NAME` env var) |
+| **Provider** | NVIDIA API (`https://integrate.api.nvidia.com/v1`) via `openai` Python SDK |
+| **Model** | `z-ai/glm-5.2` or `mistralai/mistral-nemotron` (configurable via `MODEL_NAME` env var) |
 | **Temperature** | 0.2 (low, for deterministic compliance output) |
 | **Structured output** | `response_format.json_schema` with the `InvestigationFinding` Pydantic JSON schema, `strict: true` |
 | **Timeout** | 120 seconds |

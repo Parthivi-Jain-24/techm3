@@ -19,8 +19,9 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
-import httpx
+from openai import AsyncOpenAI
 from pydantic import BaseModel
 
 from app.config import settings
@@ -31,8 +32,6 @@ from app.agents.grounding_guardrail import verify_sar, GuardrailResult
 from app.agents.privacy_guardrail import redact_sar, PrivacyGuardrailResult
 
 logger = logging.getLogger(__name__)
-
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 # ── System prompt (verbatim from spec) ─────────────────────────────
 
@@ -106,40 +105,34 @@ async def draft_sar(
 
     user_prompt = _build_user_prompt(finding, verdict)
 
-    url = GEMINI_API_URL.format(model=settings.model_name)
+    nvidia_client = AsyncOpenAI(
+        base_url="https://integrate.api.nvidia.com/v1",
+        api_key=settings.nvidia_api_key,
+    )
 
-    payload = {
-        "contents": [
-            {
-                "role": "user",
-                "parts": [{"text": SYSTEM_PROMPT + "\n\n" + user_prompt}],
-            }
+    logger.info("Calling NVIDIA GLM-5.2 for SAR draft (client_id=%d)", finding.client_id)
+
+    response = await nvidia_client.chat.completions.create(
+        model=settings.model_name,
+        messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user",   "content": user_prompt},
         ],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "temperature": 0.2,
-        },
-    }
+        temperature=0.2,
+        top_p=1,
+        max_tokens=4096,
+        seed=42,
+    )
 
-    params = {"key": settings.gemini_api_key}
+    content = response.choices[0].message.content
+    logger.debug("Raw SAR LLM response: %s", content[:300])
 
-    import asyncio as _asyncio
-
-    async with httpx.AsyncClient(timeout=120.0) as client:
-        for attempt in range(4):
-            resp = await client.post(url, json=payload, params=params)
-            if resp.status_code in (429, 503) and attempt < 3:
-                wait = (attempt + 1) * 10
-                logger.warning("Rate limited (429), retrying in %ds (attempt %d/3)", wait, attempt + 1)
-                await _asyncio.sleep(wait)
-                continue
-            if resp.status_code != 200:
-                logger.error("Gemini API error %s: %s", resp.status_code, resp.text)
-            resp.raise_for_status()
-            break
-
-    body = resp.json()
-    content = body["candidates"][0]["content"]["parts"][0]["text"]
+    # Strip markdown code fences if model wraps output in ```json ... ```
+    content = content.strip()
+    import re as _re
+    _match = _re.search(r"```(?:json)?\s*([\s\S]+?)\s*```", content)
+    if _match:
+        content = _match.group(1).strip()
 
     raw = json.loads(content)
     raw["client_id"] = finding.client_id
