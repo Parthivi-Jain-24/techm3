@@ -67,22 +67,23 @@ def test_path_traversal_falls_back_to_approved_default(monkeypatch) -> None:  # 
 def test_runtime_audit_directory_is_git_ignored() -> None:  # 76 (mirrors test_tls_config.py)
     from app.core.config import PROJECT_ROOT
 
-    # Write a throwaway file and confirm `git status --porcelain --ignored`
-    # reports it as ignored rather than untracked.
-    audit_dir = PROJECT_ROOT / "backend" / "var" / "audit"
-    audit_dir.mkdir(parents=True, exist_ok=True)
-    probe = audit_dir / "audit.jsonl"
-    probe.write_text('{"probe": true}\n', encoding="utf-8")
-    try:
-        result = subprocess.run(
-            ["git", "-C", str(PROJECT_ROOT), "status", "--porcelain", "--ignored", "backend/var/audit/"],
-            capture_output=True, text=True, check=False,
-        )
-        lines = [line for line in result.stdout.splitlines() if "audit.jsonl" in line]
-        assert lines, "expected git to report audit.jsonl (ignored or otherwise)"
-        assert all(line.startswith("!!") for line in lines)  # "!!" == ignored
-    finally:
-        probe.unlink(missing_ok=True)
+    # `git check-ignore` evaluates the ignore rules for a path without creating
+    # it, and exits 0 only when the path is ignored.
+    #
+    # This deliberately does NOT write a probe file: the runtime log is the real
+    # audit trail of any server running against this checkout, and a test that
+    # writes then unlinks it would silently destroy live audit evidence. (The
+    # earlier version did exactly that; it went unnoticed only because a
+    # PROJECT_ROOT bug pointed the path outside the repository entirely.)
+    result = subprocess.run(
+        ["git", "-C", str(PROJECT_ROOT), "check-ignore", "-v", "backend/var/audit/audit.jsonl"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, (
+        "backend/var/audit/audit.jsonl is not git-ignored: runtime audit output "
+        f"could be committed. git said: {result.stdout or result.stderr!r}"
+    )
+    assert "backend/var/audit" in result.stdout.replace("\\", "/")
 
 
 # --- sink failure policy (77-78) --------------------------------------------- #

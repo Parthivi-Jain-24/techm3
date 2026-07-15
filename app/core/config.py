@@ -11,9 +11,27 @@ from pathlib import Path
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Repository root: backend/app/core/config.py -> parents[3] == project root.
-# Used to anchor dataset paths so they do not depend on the process CWD.
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# Repository root, used to anchor dataset/audit paths so they never depend on
+# the process CWD.
+#
+# Deliberately NOT a fixed parents[N]. This file exists at two depths in the
+# merged repo -- app/core/config.py and backend/app/core/config.py -- so any
+# hardcoded index is wrong in one of them. parents[3] was correct only for the
+# original backend/app/... layout; from the repo-root copy it resolved one level
+# ABOVE the repository, which sent the audit log and dataset reads outside the
+# project (and into whatever repo happens to contain the parent directory).
+# Walking up to the nearest repo marker is correct at any depth and cannot drift
+# again if the package is moved.
+def _find_project_root() -> Path:
+    here = Path(__file__).resolve()
+    for candidate in here.parents:
+        if (candidate / ".git").exists() or (candidate / "pyproject.toml").exists():
+            return candidate
+    # No marker (e.g. installed as a wheel): assume the canonical app/core/ depth.
+    return here.parents[2]
+
+
+PROJECT_ROOT = _find_project_root()
 
 
 class Settings(BaseSettings):

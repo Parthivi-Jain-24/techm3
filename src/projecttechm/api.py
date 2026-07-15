@@ -8,6 +8,7 @@ Run:
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from datetime import datetime
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Path as PathParam, Query
@@ -15,6 +16,12 @@ from fastapi.responses import RedirectResponse
 from pydantic import BaseModel, Field
 
 from .audit import AuditEvent, InMemoryAuditSink, get_audit_sink
+from .contracts import (
+    adverse_media_to_result,
+    evidence_to_result,
+    to_risk_media_signal,
+    to_risk_sanctions_signal,
+)
 from .resolution import DEFAULT_MATCH_LIMIT
 from .schemas import AdverseMediaFinding, EvidenceRecord
 from .services import get_registry
@@ -171,6 +178,38 @@ class UboTraceResponse(BaseModel):
     findings: list[UboFinding] = Field(description="Best match per node, highest score first")
 
 
+class EntityIntelligenceResultOut(BaseModel):
+    """Mirrors app.schemas.entity_intelligence.EntityIntelligenceResult.
+
+    Redeclared rather than imported so Part 2's service still starts when the
+    `app` package is absent — the adapter is validated against the real model in
+    tests/test_contract_adapter.py.
+    """
+
+    result_id: str
+    client_id: str
+    source_type: str = Field(description="sanctions | watchlist | adverse_media")
+    source_name: str
+    matched_entity_name: str | None = None
+    match_confidence: float = Field(
+        ge=0, le=100, description="0-100 confidence in IDENTITY resolution, not risk"
+    )
+    decision: str = Field(
+        description="confirmed_match | likely_match | needs_review | likely_false_positive | no_match"
+    )
+    matched_attributes: list[str] = Field(default_factory=list)
+    evidence_references: list[str] = Field(default_factory=list)
+    evaluated_at: datetime
+
+
+class RiskSignalsOut(BaseModel):
+    """Payload sections for risk_engine.assess(). Confidence values are 0-1."""
+
+    customer_id: str
+    sanctions: dict[str, Any]
+    adverse_media: dict[str, Any]
+
+
 class AuditEventPage(BaseModel):
     total_emitted: int
     dropped: int = Field(description="Events aged out of the bounded sink")
@@ -278,6 +317,78 @@ def sanctions_matches(
         return get_registry().get_sanctions_matches(customer_id, limit=limit)
     except KeyError:
         raise HTTPException(status_code=404, detail=f"Unknown customer: {customer_id}")
+
+
+# -- integration contract (playbook §7 -> Parts 3 & 4) ----------------------
+
+@app.get(
+    "/customers/{customer_id}/entity-intelligence",
+    response_model=list[EntityIntelligenceResultOut],
+    tags=["integration"],
+)
+def entity_intelligence(
+    customer_id: str = PathParam(..., examples=["CLIENT-1", "CUST-2041"]),
+    limit: int = Query(DEFAULT_MATCH_LIMIT, ge=1, le=500),
+) -> list[dict[str, Any]]:
+    """Canonical `EntityIntelligenceResult` records for a customer.
+
+    This is the contract in docs/architecture/integration-contracts.md, shaped by
+    Part 1's `app.schemas.entity_intelligence.EntityIntelligenceResult`. Prefer
+    it over /screen for cross-workstream use: /screen returns our internal
+    EvidenceRecord, whose field names and 0-1 score are ours to change.
+
+    Combines sanctions screening with any adverse-media findings already
+    analyzed for this customer.
+    """
+    registry = get_registry()
+    client = registry.get_client(customer_id)
+
+    results: list[dict[str, Any]] = []
+    if client is not None:
+        results.extend(
+            evidence_to_result(record) for record in registry.screen(client, limit=limit)
+        )
+    results.extend(
+        adverse_media_to_result(finding)
+        for finding in registry.get_adverse_media(customer_id)
+    )
+    if client is None and not results:
+        raise HTTPException(status_code=404, detail=f"Unknown customer: {customer_id}")
+    return results
+
+
+@app.get(
+    "/customers/{customer_id}/risk-signals",
+    response_model=RiskSignalsOut,
+    tags=["integration"],
+)
+def risk_signals(
+    customer_id: str = PathParam(..., examples=["CLIENT-1"]),
+) -> dict[str, Any]:
+    """Sections ready to drop into `risk_engine.assess()`.
+
+    Part 3's scorer wants a different shape from Part 1's contract, on a
+    different scale: it clamps confidence to 0-1, while the contract's Score is
+    0-100. Passing the contract straight in clamps every match to 1.0, so a
+    false positive scores identically to a confirmed hit. These sections carry
+    0-1 values for that reason — see projecttechm.contracts.
+    """
+    registry = get_registry()
+    client = registry.get_client(customer_id)
+    if client is None:
+        raise HTTPException(status_code=404, detail=f"Unknown customer: {customer_id}")
+
+    matches = registry.screen(client, limit=1)
+    findings = registry.get_adverse_media(customer_id)
+    return {
+        "customer_id": customer_id,
+        "sanctions": to_risk_sanctions_signal(matches[0]) if matches else {"has_match": False},
+        "adverse_media": (
+            to_risk_media_signal(findings[-1])
+            if findings
+            else {"negative_news_found": False}
+        ),
+    }
 
 
 # -- adverse media ----------------------------------------------------------
